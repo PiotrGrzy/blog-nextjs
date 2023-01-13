@@ -10,7 +10,13 @@ export type Post = {
   categories: number[];
 };
 
-const getDataFromJson = async (): Promise<{ posts: Post[]; categories: string[] }> => {
+export type Category = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
+const getDataFromJson = async (): Promise<{ posts: Post[]; categories: Category[] }> => {
   const jsonDirectory = path.join(process.cwd(), 'data');
   const fileContents = await fs.readFile(jsonDirectory + '/blog.json', 'utf8');
   return JSON.parse(fileContents);
@@ -23,7 +29,7 @@ export const getCategories = async () => {
 
 export const getAllPosts = async () => {
   const data = await getDataFromJson();
-  return data.posts;
+  return data.posts.slice(0, 3);
 };
 
 export const getPostData = async (id: string) => {
