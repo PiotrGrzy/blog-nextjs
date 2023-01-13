@@ -1,8 +1,8 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import TextContent from '@components/ui/TextContent';
 import Title from '@components/ui/Title';
 import { Category, Post } from '@utils/data';
+import PostInfo from '@components/PostInfo';
 
 interface Props {
   post: Post;
@@ -12,21 +12,27 @@ interface Props {
 const PostCard = ({ post, categories }: Props) => {
   const { imageUrl, title, categories: categoryIds, excerpt, id } = post;
   return (
-    <Link href={id.toString()}>
-      <div className="rounded-lg shadow-lg hover:translate-y-2 transition h-full ">
-        <Image className="rounded-t-lg" alt="Blog picture" src={imageUrl} width="600" height="400" />
-        <Title>{title}</Title>
-        <div className="flex px-3">
-          {categoryIds.map((id) => {
-            const category = categories.find((c) => c.id === id);
-            return (
-              <span className="text-sm text-indigo-500 font-semibold " key={id}>
-                {category?.name}
-              </span>
-            );
-          })}
+    <Link className="block grow lg:w-1/3" href={id.toString()}>
+      <div className="flex h-full flex-col justify-between rounded-lg shadow-lg transition hover:translate-y-2">
+        <div>
+          <div
+            className="h-52 w-full rounded-t-lg bg-center bg-no-repeat "
+            style={{ backgroundImage: `url(${imageUrl})` }}
+          ></div>
+          <Title>{title}</Title>
+          <div className="flex px-3">
+            {categoryIds.map((id) => {
+              const category = categories.find((c) => c.id === id);
+              return (
+                <span className="text-sm font-semibold text-indigo-500 " key={id}>
+                  {category?.name}
+                </span>
+              );
+            })}
+          </div>
+          <TextContent>{excerpt}</TextContent>
         </div>
-        <TextContent>{excerpt}</TextContent>
+        <PostInfo />
       </div>
     </Link>
   );

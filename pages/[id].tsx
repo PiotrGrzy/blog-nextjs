@@ -1,5 +1,6 @@
+import Header from '@components/Header';
 import ArrowLeft from '@components/Icons/ArrowLeft';
-import Header from '@components/ui/Header';
+import Heading from '@components/ui/Heading';
 import TextContent from '@components/ui/TextContent';
 import { getAllPosts, getPostData, Post } from '@utils/data';
 import { NextPage } from 'next';
@@ -37,12 +38,13 @@ interface Props {
 const Post: NextPage<Props> = ({ postData }) => {
   const { title, excerpt, imageUrl } = postData;
   return (
-    <div className="p-2 pt-0 rounded-lg relative ">
+    <div className="p-2 pt-0 ">
+      <Header />
       <Image className="mx-auto" alt="post image" src={imageUrl} width={1000} height={600} />
-      <Header>{title}</Header>
-      <h2 className="text-center mb-4">{excerpt}</h2>
+      <Heading>{title}</Heading>
+      <h2 className="mb-4 text-center">{excerpt}</h2>
       <TextContent>{exampleContent}</TextContent>
-      <div className="flex justify-center align-middle gap-2 my-2 text-indigo-500 ">
+      <div className="my-2 flex justify-center gap-2 align-middle text-indigo-500 ">
         <ArrowLeft />
         <Link href="/">Back to other posts</Link>
       </div>

@@ -6,7 +6,7 @@ interface Props {
 
 const Button = ({ children, ...otherProps }: Props) => {
   return (
-    <button className="py-2 px-4 color-white bg-purple-500" {...otherProps}>
+    <button className="block rounded-lg py-2 px-4 text-indigo-500 transition hover:bg-indigo-100" {...otherProps}>
       {children}
     </button>
   );
