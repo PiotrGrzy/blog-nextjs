@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import TextContent from '@components/ui/TextContent';
 import Title from '@components/ui/Title';
-import { Category, Post } from '@utils/data';
+import { Category, Post } from '@utils/posts';
 import PostInfo from '@components/PostInfo';
 
 interface Props {
@@ -20,7 +20,7 @@ const PostCard = ({ post, categories }: Props) => {
             style={{ backgroundImage: `url(${imageUrl})` }}
           ></div>
           <Title>{title}</Title>
-          <div className="flex px-3">
+          <div className="flex gap-2 px-3">
             {categoryIds.map((id) => {
               const category = categories.find((c) => c.id === id);
               return (

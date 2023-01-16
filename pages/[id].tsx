@@ -1,16 +1,17 @@
-import Header from '@components/Header';
-import ArrowLeft from '@components/Icons/ArrowLeft';
-import Heading from '@components/ui/Heading';
-import TextContent from '@components/ui/TextContent';
-import { getAllPosts, getPostData, Post } from '@utils/data';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export const getStaticPaths = async () => {
-  const posts = await getAllPosts();
+import Header from '@components/Header';
+import ArrowLeft from '@components/Icons/ArrowLeft';
+import Heading from '@components/ui/Heading';
+import TextContent from '@components/ui/TextContent';
+import { getAllPosts, getSinglePostData, Post } from '@utils/posts';
 
-  const paths = posts.map((post) => {
+export const getStaticPaths = async () => {
+  const data = await getAllPosts();
+
+  const paths = data.posts.map((post) => {
     return { params: { id: post.id.toString() } };
   });
 
@@ -21,8 +22,7 @@ export const getStaticPaths = async () => {
 };
 
 export const getStaticProps = async ({ params }: { params: { id: string } }) => {
-  const postData = await getPostData(params.id);
-  console.log(postData);
+  const postData = await getSinglePostData(params.id);
 
   return {
     props: {
@@ -44,7 +44,7 @@ const Post: NextPage<Props> = ({ postData }) => {
       <Heading>{title}</Heading>
       <h2 className="mb-4 text-center">{excerpt}</h2>
       <TextContent>{exampleContent}</TextContent>
-      <div className="my-2 flex justify-center gap-2 align-middle text-indigo-500 ">
+      <div className="my-2 flex justify-center gap-2 align-middle text-indigo-500 transition hover:-translate-x-2 hover:bg-indigo-100 ">
         <ArrowLeft />
         <Link href="/">Back to other posts</Link>
       </div>

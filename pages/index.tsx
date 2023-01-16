@@ -1,34 +1,53 @@
-import { Inter } from '@next/font/google';
-import PostCard from '@components/PostCard';
-import { Category, getAllPosts, getCategories, Post } from '@utils/data';
+import { useState } from 'react';
 import { NextPage } from 'next';
-import Link from 'next/link';
+import useSWR, { SWRConfig } from 'swr';
+
+import { Category, getAllPosts, getCategories, Post } from '@utils/posts';
+import PostCard from '@components/PostCard';
 import Heading from '@components/ui/Heading';
 import ArrowLeft from '@components/Icons/ArrowLeft';
 import ArrowRight from '@components/Icons/ArrowRight';
 import Button from '@components/ui/Button';
 import Header from '@components/Header';
-import { useState } from 'react';
-
-const inter = Inter({ subsets: ['latin'] });
+import { Posts } from './api/posts';
 
 export const getStaticProps = async () => {
   const categories = await getCategories();
   const posts = await getAllPosts();
   return {
-    props: { categories, posts },
+    props: {
+      fallback: {
+        'api/posts/?page=1&category=null&search=': posts,
+      },
+      categories: categories,
+    },
   };
 };
 
-interface Props {
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+interface PageProps {
   categories: Category[];
-  posts: Post[];
 }
 
-const Home: NextPage<Props> = ({ categories, posts }) => {
-  console.log(categories);
+const Home: NextPage<PageProps> = ({ categories }) => {
   const [currentCategory, setCurrentCategory] = useState<null | number>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const { data, error, isLoading } = useSWR<Posts>(
+    `api/posts/?page=${page}&category=${currentCategory}&search=${searchQuery}`,
+    fetcher,
+  );
+
+  const goToPrevPage = () => {
+    setPage((prevState) => --prevState);
+  };
+
+  const goToNextPage = () => {
+    setPage((prevState) => ++prevState);
+  };
+
+  // console.log(data);
 
   return (
     <>
@@ -44,27 +63,47 @@ const Home: NextPage<Props> = ({ categories, posts }) => {
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos necessitatibus facilis fugit modi earum. Ipsam
         obcaecati inventore libero asperiores voluptates!
       </h2>
-      <div className="flex min-h-max flex-col justify-evenly gap-6 md:gap-10 lg:flex-row">
-        {posts.map((post) => {
-          return <PostCard key={post.id} post={post} categories={categories} />;
-        })}
-      </div>
-      <div className="m-3 mt-8 flex justify-between">
-        <Button>
-          <div className="flex gap-2 transition hover:-translate-x-2 ">
-            <ArrowLeft />
-            LastPage
+      {error ? (
+        <div className="py-5 text-center font-medium">Oops! Something went wrong.</div>
+      ) : (
+        <>
+          <div className="flex min-h-max flex-col justify-evenly gap-6 md:gap-10 lg:flex-row">
+            {data?.posts.map((post) => {
+              return <PostCard key={post.id} post={post} categories={categories} />;
+            })}
           </div>
-        </Button>
-        <Button>
-          <div className="flex gap-2 transition hover:translate-x-2">
-            NextPage
-            <ArrowRight />
+          <div className="m-3 mt-8 flex justify-between">
+            <Button disabled={page === 1} onClick={goToPrevPage}>
+              <div className={`flex gap-2 transition ${page !== 1 ? 'hover:translate-x-2' : ''}`}>
+                <ArrowLeft />
+                Previous Page
+              </div>
+            </Button>
+            <Button disabled={page === data?.pagesTotal} onClick={goToNextPage}>
+              <div className={`flex gap-2 transition ${page !== data?.pagesTotal ? 'hover:translate-x-2' : ''}`}>
+                Next Page
+                <ArrowRight />
+              </div>
+            </Button>
           </div>
-        </Button>
-      </div>
+        </>
+      )}
     </>
   );
 };
 
-export default Home;
+interface Props {
+  fallback: {
+    data: Post[];
+    pagesTotal: number;
+  };
+  categories: Category[];
+}
+
+export default function Page({ fallback, categories }: Props) {
+  return (
+    <SWRConfig value={{ fallback }}>
+      <Home categories={categories} />
+    </SWRConfig>
+  );
+}
