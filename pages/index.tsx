@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import useSWR, { SWRConfig } from 'swr';
 
 import { Category, getAllPosts, getCategories, Post } from '@utils/posts';
+import { Posts } from './api/posts';
 import useDebounce from 'hooks/useDebounce';
 import PostCard from '@components/PostCard';
 import Heading from '@components/ui/Heading';
-import ArrowLeftIcon from '@components/Icons/ArrowLeftIcon';
-import ArrowRightIcon from '@components/Icons/ArrowRightIcon';
-import Button from '@components/ui/Button';
 import Header from '@components/Header';
-import { Posts } from './api/posts';
+import Loader from '@components/ui/Loader';
+import Pagination from '@components/Pagination';
 
 export const getStaticProps = async () => {
   const categories = await getCategories();
@@ -25,33 +25,68 @@ export const getStaticProps = async () => {
   };
 };
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
-
 interface PageProps {
   categories: Category[];
 }
 
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
 const Home: NextPage<PageProps> = ({ categories }) => {
+  const router = useRouter();
+  const { isReady, query } = router;
   const [currentCategory, setCurrentCategory] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce<string>(searchQuery, 500);
-  const [page, setPage] = useState(1);
-  const { data, error } = useSWR<Posts>(
-    `api/posts?page=${page}&category=${currentCategory}&search=${debouncedSearchQuery}`,
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data, error, isLoading } = useSWR<Posts>(
+    `api/posts?page=${currentPage}&category=${currentCategory}&search=${debouncedSearchQuery}`,
     fetcher,
   );
 
-  useEffect(() => {
-    setPage(1);
-  }, [currentCategory]);
-
   const goToPrevPage = () => {
-    setPage((prevState) => --prevState);
+    setCurrentPage((prevState) => --prevState);
   };
 
   const goToNextPage = () => {
-    setPage((prevState) => ++prevState);
+    setCurrentPage((prevState) => ++prevState);
   };
+
+  useEffect(() => {
+    if (!isReady) return;
+    const { search, category, page } = query;
+    const initialValues = {
+      search: search ? (search as string) : '',
+      category: category ? parseInt(category as string, 10) : 0,
+      page: page ? parseInt(page as string, 10) : 1,
+    };
+    setCurrentCategory(initialValues.category);
+    setCurrentPage(initialValues.page);
+    setSearchQuery(initialValues.search);
+  }, [isReady, query]);
+
+  useEffect(() => {
+    if (!isReady) {
+      return;
+    }
+    const timeout = setTimeout(() => {
+      router.push({
+        pathname: '/',
+        query: {
+          page: currentPage,
+          category: currentCategory,
+          search: debouncedSearchQuery,
+        },
+      });
+    }, 500);
+    return function cleanUp() {
+      clearTimeout(timeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchQuery, currentCategory, currentPage, isReady]);
+
+  if (!isReady || isLoading) {
+    return <Loader />;
+  }
 
   return (
     <>
@@ -61,12 +96,16 @@ const Home: NextPage<PageProps> = ({ categories }) => {
         currentCategory={currentCategory}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        setPage={setCurrentPage}
       />
       <Heading>From the Blog</Heading>
       <h2 className="mb-24 mt-5 text-center text-lg text-gray-500">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos necessitatibus facilis fugit modi earum. Ipsam
         obcaecati inventore libero asperiores voluptates!
       </h2>
+      {data?.posts.length === 0 && (
+        <div className="py-5 text-center font-medium">We are sorry. We have no posts with current criteria.</div>
+      )}
       {error ? (
         <div className="py-5 text-center font-medium">Oops! Something went wrong.</div>
       ) : (
@@ -76,20 +115,12 @@ const Home: NextPage<PageProps> = ({ categories }) => {
               return <PostCard key={post.id} post={post} categories={categories} />;
             })}
           </div>
-          <div className="m-3 my-16 flex justify-between px-4">
-            <Button disabled={page === 1} onClick={goToPrevPage}>
-              <div className={`flex gap-2 transition ${page !== 1 ? 'hover:translate-x-2' : ''}`}>
-                <ArrowLeftIcon />
-                Previous Page
-              </div>
-            </Button>
-            <Button disabled={page === data?.pagesTotal} onClick={goToNextPage}>
-              <div className={`flex gap-2 transition ${page !== data?.pagesTotal ? 'hover:translate-x-2' : ''}`}>
-                Next Page
-                <ArrowRightIcon />
-              </div>
-            </Button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            pagesTotal={data?.pagesTotal}
+            goToNextPage={goToNextPage}
+            goToPrevPage={goToPrevPage}
+          />
         </>
       )}
     </>

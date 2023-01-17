@@ -1,20 +1,19 @@
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import Image from 'next/image';
-import Link from 'next/link';
 
 import Header from '@components/Header';
 import ArrowLeftIcon from '@components/Icons/ArrowLeftIcon';
 import Heading from '@components/ui/Heading';
 import TextContent from '@components/ui/TextContent';
 import { getAllPosts, getSinglePostData, Post } from '@utils/posts';
+import Button from '@components/ui/Button';
 
 export const getStaticPaths = async () => {
   const data = await getAllPosts();
-
   const paths = data.posts.map((post) => {
     return { params: { slug: post.slug } };
   });
-  console.log(paths);
 
   return {
     paths,
@@ -37,6 +36,7 @@ interface Props {
 }
 
 const Post: NextPage<Props> = ({ postData }) => {
+  const router = useRouter();
   const { title, excerpt, imageUrl } = postData;
   return (
     <div className="p-2 pt-0 ">
@@ -45,9 +45,13 @@ const Post: NextPage<Props> = ({ postData }) => {
       <Heading>{title}</Heading>
       <h2 className="mb-6 text-center">{excerpt}</h2>
       <TextContent>{exampleContent}</TextContent>
-      <div className="my-6 flex justify-center gap-2 align-middle text-indigo-500 transition hover:-translate-x-2 hover:bg-indigo-100 ">
-        <ArrowLeftIcon />
-        <Link href="/">Back to other posts</Link>
+      <div className="mb-10">
+        <Button onClick={() => router.back()}>
+          <div className={'flex gap-2 transition hover:translate-x-2'}>
+            <ArrowLeftIcon />
+            Back to other posts
+          </div>
+        </Button>
       </div>
     </div>
   );

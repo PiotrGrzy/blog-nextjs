@@ -10,23 +10,26 @@ interface Props {
   searchQuery?: string;
   setCategory?: Dispatch<SetStateAction<number>>;
   setSearchQuery?: Dispatch<SetStateAction<string>>;
+  setPage?: Dispatch<SetStateAction<number>>;
 }
 
-const Header = ({ categories, setCategory, currentCategory, searchQuery, setSearchQuery }: Props) => {
+const Header = ({ categories, setCategory, currentCategory, searchQuery, setSearchQuery, setPage }: Props) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!setSearchQuery) return;
     setSearchQuery(e.target.value);
   };
 
   const handleNavCategoryChange = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!setCategory) return;
+    if (!setCategory || !setPage) return;
     const target = e.target as HTMLButtonElement;
+    setPage(1);
     setCategory(parseInt(target.value));
   };
 
   const handleSelectCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (!setCategory) return;
+    if (!setCategory || !setPage) return;
     const target = e.target as HTMLSelectElement;
+    setPage(1);
     setCategory(parseInt(target.value));
   };
 
