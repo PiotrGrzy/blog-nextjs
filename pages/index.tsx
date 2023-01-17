@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import useSWR, { SWRConfig } from 'swr';
 
 import { Category, getAllPosts, getCategories, Post } from '@utils/posts';
+import useDebounce from 'hooks/useDebounce';
 import PostCard from '@components/PostCard';
 import Heading from '@components/ui/Heading';
 import ArrowLeftIcon from '@components/Icons/ArrowLeftIcon';
@@ -17,7 +18,7 @@ export const getStaticProps = async () => {
   return {
     props: {
       fallback: {
-        'api/posts/?page=1&category=null&search=': posts,
+        'api/posts/?page=1&category=0&search=': posts,
       },
       categories: categories,
     },
@@ -31,13 +32,18 @@ interface PageProps {
 }
 
 const Home: NextPage<PageProps> = ({ categories }) => {
-  const [currentCategory, setCurrentCategory] = useState<null | number>(null);
+  const [currentCategory, setCurrentCategory] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce<string>(searchQuery, 500);
   const [page, setPage] = useState(1);
-  const { data, error, isLoading } = useSWR<Posts>(
-    `api/posts/?page=${page}&category=${currentCategory}&search=${searchQuery}`,
+  const { data, error } = useSWR<Posts>(
+    `api/posts?page=${page}&category=${currentCategory}&search=${debouncedSearchQuery}`,
     fetcher,
   );
+
+  useEffect(() => {
+    setPage(1);
+  }, [currentCategory]);
 
   const goToPrevPage = () => {
     setPage((prevState) => --prevState);
@@ -65,12 +71,12 @@ const Home: NextPage<PageProps> = ({ categories }) => {
         <div className="py-5 text-center font-medium">Oops! Something went wrong.</div>
       ) : (
         <>
-          <div className="flex min-h-max flex-col justify-evenly gap-6 md:gap-10 lg:flex-row">
+          <div className="flex flex-col justify-evenly gap-6 md:gap-10 lg:h-[32rem] lg:flex-row">
             {data?.posts.map((post) => {
               return <PostCard key={post.id} post={post} categories={categories} />;
             })}
           </div>
-          <div className="m-3 mt-16 flex justify-between px-4">
+          <div className="m-3 my-16 flex justify-between px-4">
             <Button disabled={page === 1} onClick={goToPrevPage}>
               <div className={`flex gap-2 transition ${page !== 1 ? 'hover:translate-x-2' : ''}`}>
                 <ArrowLeftIcon />

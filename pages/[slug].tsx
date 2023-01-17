@@ -12,8 +12,9 @@ export const getStaticPaths = async () => {
   const data = await getAllPosts();
 
   const paths = data.posts.map((post) => {
-    return { params: { id: post.id.toString() } };
+    return { params: { slug: post.slug } };
   });
+  console.log(paths);
 
   return {
     paths,
@@ -21,8 +22,8 @@ export const getStaticPaths = async () => {
   };
 };
 
-export const getStaticProps = async ({ params }: { params: { id: string } }) => {
-  const postData = await getSinglePostData(params.id);
+export const getStaticProps = async ({ params }: { params: { slug: string } }) => {
+  const postData = await getSinglePostData(params.slug);
 
   return {
     props: {
@@ -40,11 +41,11 @@ const Post: NextPage<Props> = ({ postData }) => {
   return (
     <div className="p-2 pt-0 ">
       <Header />
-      <Image className="mx-auto" alt="post image" src={imageUrl} width={1000} height={600} />
+      <Image className="mx-auto mt-2" alt="post image" src={imageUrl} width={1000} height={600} />
       <Heading>{title}</Heading>
-      <h2 className="mb-4 text-center">{excerpt}</h2>
+      <h2 className="mb-6 text-center">{excerpt}</h2>
       <TextContent>{exampleContent}</TextContent>
-      <div className="my-2 flex justify-center gap-2 align-middle text-indigo-500 transition hover:-translate-x-2 hover:bg-indigo-100 ">
+      <div className="my-6 flex justify-center gap-2 align-middle text-indigo-500 transition hover:-translate-x-2 hover:bg-indigo-100 ">
         <ArrowLeftIcon />
         <Link href="/">Back to other posts</Link>
       </div>

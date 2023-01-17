@@ -10,9 +10,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   const { search, page, category } = req.query;
 
   const query = {
-    search: search?.toString(),
-    page: parseInt(page, 10),
-    category: parseInt(category, 10),
+    search: search,
+    page: parseInt(page as string, 10),
+    category: parseInt(category as string, 10),
   } as PostsQueryObject;
 
   const posts = await getPosts({ query });

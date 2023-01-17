@@ -10,10 +10,10 @@ interface Props {
 }
 
 const PostCard = ({ post, categories }: Props) => {
-  const { imageUrl, title, categories: categoryIds, excerpt, id } = post;
+  const { imageUrl, title, categories: categoryIds, excerpt, slug } = post;
   return (
-    <Link className="block grow lg:w-1/3" href={id.toString()}>
-      <div className="flex h-full flex-col justify-between rounded-lg shadow-lg transition hover:translate-y-2">
+    <Link className="block lg:w-1/3" href={slug}>
+      <div className="flex h-full flex-col justify-between rounded-lg shadow-lg transition hover:-translate-y-2">
         <div>
           <div
             className="h-52 w-full rounded-t-lg bg-center bg-no-repeat "
@@ -22,7 +22,7 @@ const PostCard = ({ post, categories }: Props) => {
           <Title>{title}</Title>
           <div className="flex gap-2 px-3">
             {categoryIds.map((id) => {
-              const category = categories.find((c) => c.id === id);
+              const category = categories.find((category) => category.id === id);
               return (
                 <span className="text-sm font-semibold text-indigo-500 " key={id}>
                   {category?.name}

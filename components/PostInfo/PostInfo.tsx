@@ -1,14 +1,14 @@
 import Image from 'next/image';
 import dateFormat from 'dateformat';
 
-const mockData = {
+const exampleData = {
   date: dateFormat(new Date(), 'mediumDate'),
   authorName: 'Jane Doe',
   readTime: '4 min',
 };
 
 const PostInfo = () => {
-  const { authorName, readTime, date } = mockData;
+  const { authorName, readTime, date } = exampleData;
   return (
     <div className="flex align-middle">
       <div className="relative m-3 mb-4 h-14 w-14">

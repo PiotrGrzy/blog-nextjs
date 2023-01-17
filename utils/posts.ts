@@ -18,6 +18,12 @@ export type Category = {
   slug: string;
 };
 
+export type PostsQueryObject = {
+  search: string;
+  category: number;
+  page: number;
+};
+
 const getDataFromJson = async (): Promise<{ posts: Post[]; categories: Category[] }> => {
   const jsonDirectory = path.join(process.cwd(), 'data');
   const fileContents = await fs.readFile(jsonDirectory + '/blog.json', 'utf8');
@@ -29,51 +35,39 @@ export const getCategories = async () => {
   return data.categories;
 };
 
-export type PostsQueryObject = {
-  search: string;
-  category: number | null;
-  page: number;
-};
-
 export const getAllPosts = async () => {
   const data = await getDataFromJson();
   return { posts: data.posts };
 };
 
-export const getSinglePostData = async (id: string) => {
+export const getSinglePostData = async (slug: string) => {
   const data = await getDataFromJson();
-  return data.posts.find((post) => post.id === parseInt(id, 10));
+  return data.posts.find((post) => post.slug === slug);
 };
 
 export const getPosts = async ({ query }: { query: PostsQueryObject }) => {
   const data = await getDataFromJson();
-
-  console.log('QUERY', query);
-
-  let posts = data.posts;
-  console.log('POSTS initial', posts.length);
   const { search, category, page } = query;
+  let posts = data.posts;
 
   if (search) {
     posts = searchPostByTitle(posts, search);
   }
-  console.log('POSTS after search', posts.length);
 
   if (category) {
     posts = filterPostsByCategory(posts, category);
   }
-  console.log('POSTS after category', posts.length);
 
   const totalCount = posts.length;
   const pagesTotal = totalCount < PAGE_SIZE ? 1 : Math.ceil(totalCount / PAGE_SIZE);
 
   posts = posts.slice((page - 1) * 3, page * 3);
-  console.log('POSTS after page change', posts.length);
 
   return { posts, pagesTotal };
 };
+
 const searchPostByTitle = (posts: Post[], query: string) => {
-  return posts.filter((post) => post.title.includes(query));
+  return posts.filter((post) => post.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
 };
 
 const filterPostsByCategory = (posts: Post[], category: number) => {

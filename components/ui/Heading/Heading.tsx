@@ -5,7 +5,7 @@ interface Props {
 }
 
 const Heading = ({ children }: Props) => {
-  return <h1 className="my-10 text-center text-4xl font-bold">{children}</h1>;
+  return <h1 className="mb-10 mt-14 text-center text-4xl font-bold lg:mt-36">{children}</h1>;
 };
 
 export default Heading;
