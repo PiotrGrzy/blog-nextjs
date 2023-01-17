@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import Header from '@components/Header';
-import ArrowLeft from '@components/Icons/ArrowLeft';
+import ArrowLeftIcon from '@components/Icons/ArrowLeftIcon';
 import Heading from '@components/ui/Heading';
 import TextContent from '@components/ui/TextContent';
 import { getAllPosts, getSinglePostData, Post } from '@utils/posts';
@@ -45,7 +45,7 @@ const Post: NextPage<Props> = ({ postData }) => {
       <h2 className="mb-4 text-center">{excerpt}</h2>
       <TextContent>{exampleContent}</TextContent>
       <div className="my-2 flex justify-center gap-2 align-middle text-indigo-500 transition hover:-translate-x-2 hover:bg-indigo-100 ">
-        <ArrowLeft />
+        <ArrowLeftIcon />
         <Link href="/">Back to other posts</Link>
       </div>
     </div>

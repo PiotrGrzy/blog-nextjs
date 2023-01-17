@@ -5,8 +5,8 @@ import useSWR, { SWRConfig } from 'swr';
 import { Category, getAllPosts, getCategories, Post } from '@utils/posts';
 import PostCard from '@components/PostCard';
 import Heading from '@components/ui/Heading';
-import ArrowLeft from '@components/Icons/ArrowLeft';
-import ArrowRight from '@components/Icons/ArrowRight';
+import ArrowLeftIcon from '@components/Icons/ArrowLeftIcon';
+import ArrowRightIcon from '@components/Icons/ArrowRightIcon';
 import Button from '@components/ui/Button';
 import Header from '@components/Header';
 import { Posts } from './api/posts';
@@ -47,8 +47,6 @@ const Home: NextPage<PageProps> = ({ categories }) => {
     setPage((prevState) => ++prevState);
   };
 
-  // console.log(data);
-
   return (
     <>
       <Header
@@ -59,7 +57,7 @@ const Home: NextPage<PageProps> = ({ categories }) => {
         setSearchQuery={setSearchQuery}
       />
       <Heading>From the Blog</Heading>
-      <h2 className="mb-8 text-center text-lg text-gray-500">
+      <h2 className="mb-24 mt-5 text-center text-lg text-gray-500">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos necessitatibus facilis fugit modi earum. Ipsam
         obcaecati inventore libero asperiores voluptates!
       </h2>
@@ -72,17 +70,17 @@ const Home: NextPage<PageProps> = ({ categories }) => {
               return <PostCard key={post.id} post={post} categories={categories} />;
             })}
           </div>
-          <div className="m-3 mt-8 flex justify-between">
+          <div className="m-3 mt-16 flex justify-between px-4">
             <Button disabled={page === 1} onClick={goToPrevPage}>
               <div className={`flex gap-2 transition ${page !== 1 ? 'hover:translate-x-2' : ''}`}>
-                <ArrowLeft />
+                <ArrowLeftIcon />
                 Previous Page
               </div>
             </Button>
             <Button disabled={page === data?.pagesTotal} onClick={goToNextPage}>
               <div className={`flex gap-2 transition ${page !== data?.pagesTotal ? 'hover:translate-x-2' : ''}`}>
                 Next Page
-                <ArrowRight />
+                <ArrowRightIcon />
               </div>
             </Button>
           </div>

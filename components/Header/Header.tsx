@@ -29,11 +29,22 @@ const Header = ({ categories, setCategory, currentCategory, searchQuery, setSear
   };
 
   return (
-    <div className="flex justify-between gap-4 ">
-      <div>
+    <div className="flex items-center justify-between gap-4 ">
+      <div className="flex items-center gap-2">
         <Image alt="Blog logo" src="/logo_blog.jpg" width={160} height={80} />
       </div>
-      <input type="text" value={searchQuery} onChange={handleSearchChange} />
+      {setSearchQuery && (
+        <div>
+          <input
+            type="text"
+            id="search"
+            className="block w-full rounded-lg border-indigo-500 bg-gray-100 p-2.5 text-sm text-indigo-500 placeholder-gray-500 outline-none focus:border"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder="Search by title"
+          />
+        </div>
+      )}
       {categories && (
         <div className="hidden items-center justify-around gap-1 text-indigo-500 lg:flex">
           <Button key={null} onClick={clearCategory} active={currentCategory === null}>
