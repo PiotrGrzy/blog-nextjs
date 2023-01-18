@@ -38,7 +38,7 @@ const Home: NextPage<PageProps> = ({ categories }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce<string>(searchQuery, 500);
   const [currentPage, setCurrentPage] = useState(1);
-  const { data, error, isLoading } = useSWR<Posts>(
+  const { data, error } = useSWR<Posts>(
     `api/posts?page=${currentPage}&category=${currentCategory}&search=${debouncedSearchQuery}`,
     fetcher,
   );
@@ -83,10 +83,6 @@ const Home: NextPage<PageProps> = ({ categories }) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchQuery, currentCategory, currentPage, isReady]);
-
-  if (!isReady || isLoading) {
-    return <Loader />;
-  }
 
   return (
     <>
