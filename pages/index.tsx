@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useSWR, { SWRConfig } from 'swr';
 
-import { Category, getAllPosts, getCategories, getPosts, Post, PostsQueryObject } from '@utils/posts';
+import { Category, getCategories, getPosts, PostsQueryObject } from '@utils/posts';
 import { Posts } from './api/posts';
 import useDebounce from 'hooks/useDebounce';
 import PostCard from '@components/PostCard';
 import Heading from '@components/ui/Heading';
 import Header from '@components/Header';
-import Loader from '@components/ui/Loader';
 import Pagination from '@components/Pagination';
 
 export const getStaticProps = async () => {
@@ -48,13 +47,13 @@ const Home: NextPage<PageProps> = ({ categories }) => {
     fetcher,
   );
 
-  const goToPrevPage = () => {
+  const goToPrevPage = useCallback(() => {
     setCurrentPage((prevState) => --prevState);
-  };
+  }, []);
 
-  const goToNextPage = () => {
+  const goToNextPage = useCallback(() => {
     setCurrentPage((prevState) => ++prevState);
-  };
+  }, []);
 
   useEffect(() => {
     if (!isReady) return;
