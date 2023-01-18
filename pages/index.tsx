@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useSWR, { SWRConfig } from 'swr';
 
-import { Category, getAllPosts, getCategories, Post } from '@utils/posts';
+import { Category, getAllPosts, getCategories, getPosts, Post, PostsQueryObject } from '@utils/posts';
 import { Posts } from './api/posts';
 import useDebounce from 'hooks/useDebounce';
 import PostCard from '@components/PostCard';
@@ -14,7 +14,12 @@ import Pagination from '@components/Pagination';
 
 export const getStaticProps = async () => {
   const categories = await getCategories();
-  const posts = await getAllPosts();
+  const query = {
+    search: '',
+    page: 1,
+    category: 0,
+  } as PostsQueryObject;
+  const posts = await getPosts({ query });
   return {
     props: {
       fallback: {
@@ -39,7 +44,7 @@ const Home: NextPage<PageProps> = ({ categories }) => {
   const debouncedSearchQuery = useDebounce<string>(searchQuery, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const { data, error } = useSWR<Posts>(
-    `api/posts?page=${currentPage}&category=${currentCategory}&search=${debouncedSearchQuery}`,
+    `api/posts/?page=${currentPage}&category=${currentCategory}&search=${debouncedSearchQuery}`,
     fetcher,
   );
 
@@ -124,10 +129,7 @@ const Home: NextPage<PageProps> = ({ categories }) => {
 };
 
 interface Props {
-  fallback: {
-    data: Post[];
-    pagesTotal: number;
-  };
+  fallback: Posts;
   categories: Category[];
 }
 
